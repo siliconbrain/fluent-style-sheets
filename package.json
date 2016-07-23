@@ -7,5 +7,8 @@
     "name": "Dudás Ádám",
     "email": "sir.dudas.adam@gmail.com"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "scripts": {
+    "test": "echo Sorry, there are not tests yet. Someone should really write some... :)"
+  }
 }
