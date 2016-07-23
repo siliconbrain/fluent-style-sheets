@@ -1,3 +1,5 @@
+const package = require('./package.json');
+
 module.exports.RuleSet = function(initialSet=[]) {
     this.set = initialSet;
 
@@ -33,7 +35,7 @@ module.exports.RuleSet = function(initialSet=[]) {
             result = result.concat(value);
         }
 
-        print("/* Generated with fluent-style-sheets. */\n\n");
+        print(`/* Generated with ${package.name} (${package.version}). */\n\n`);
         this.set.forEach(rule => {
             print(rule.selectors.join(',\n') + '\n{\n');
             rule.declarations.forEach(declaration => {
