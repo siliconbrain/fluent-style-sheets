@@ -1,0 +1,11 @@
+{
+  "name": "fluent-style-sheets",
+  "version": "0.0.1",
+  "description": "Define your CSS in JavaScript with a fluent API.",
+  "main": "index.js",
+  "author": {
+    "name": "Dudás Ádám",
+    "email": "sir.dudas.adam@gmail.com"
+  },
+  "license": "MIT"
+}
