@@ -1,6 +1,6 @@
 {
   "name": "fluent-style-sheets",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Define your CSS in JavaScript with a fluent API.",
   "main": "index.js",
   "author": {
