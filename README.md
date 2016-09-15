@@ -1,7 +1,8 @@
 fluent-style-sheets
 ===================
 `fluent-style-sheets` is a library that lets you define your CSS using JavaScript.
-It has both a fluent API that resembles CSS as much as possible, or you can use it as an EDSL (ignoring the fluent style).
+It supports two usage styles: it has a [fluent API](https://en.wikipedia.org/wiki/Fluent_interface) that resembles CSS 
+as much as possible or you can use it more like an [EDSL](https://en.wikipedia.org/wiki/Embedded_domain-specific_language).
 
 Features
 --------
@@ -11,7 +12,7 @@ Features
 
 Usage examples
 --------------
-Fluent API:
+Fluent style:
 ```js
 const {makeStyleSheet} = require('fluent-style-sheets');
 
@@ -35,7 +36,7 @@ const styleSheet = makeStyleSheet()
 console.log(styleSheet.renderCSS());
 ```
 
-EDSL:
+EDSL style:
 ```js
 const {makeStyleSheet} = require('fluent-style-sheets');
 
