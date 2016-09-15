@@ -4,6 +4,12 @@ fluent-style-sheets
 It supports two usage styles: it has a [fluent API](https://en.wikipedia.org/wiki/Fluent_interface) that resembles CSS 
 as much as possible or you can use it more like an [EDSL](https://en.wikipedia.org/wiki/Embedded_domain-specific_language).
 
+Installation
+------------
+```
+npm i fluent-style-sheets
+```
+
 Features
 --------
 * Define CSS rules (`.rule` or `.r`)
