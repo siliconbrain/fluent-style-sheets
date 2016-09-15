@@ -7,6 +7,10 @@
     "name": "Dudás Ádám",
     "email": "sir.dudas.adam@gmail.com"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/siliconbrain/fluent-style-sheets.git"
+  },
   "license": "MIT",
   "scripts": {
     "test": "echo Sorry, there are not tests yet. Someone should really write some... :)"
