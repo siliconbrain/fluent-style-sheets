@@ -5,14 +5,17 @@ const ZeroArgumentsMessage = `No arguments provided.`;
 function parseRule() {
     if (arguments.length < 1) throw new Error(ZeroArgumentsMessage);
     if (arguments.length === 1) {
-        if (typeof arguments[0] === 'string' || Array.isArray(arguments[0])) {
+        if (typeof arguments[0] === 'string') {
             throw new Error("No declarations provided.");
         }
     }
 
-    let selectors = (arguments.length === 2 && Array.isArray(arguments[0])) ? arguments[0] : [...arguments].slice(0, -1);
+    let selectors = [...arguments].slice(0, -1);
 
     let declarations = arguments[arguments.length - 1];
+    if (Array.isArray(declarations)) {
+        declarations = Object.assign({}, ...declarations);
+    }
     declarations = Object.keys(declarations).map(property => {
         return ({
             property,
@@ -89,8 +92,6 @@ module.exports.makeStyleSheet = function() {
         const url = arguments[0];
 
         let mediaQueries = [...arguments].slice(1);
-        if (mediaQueries.length === 1 && Array.isArray(mediaQueries[0]))
-            mediaQueries = mediaQueries[0];
 
         _imports.push({
             url,
@@ -104,13 +105,18 @@ module.exports.makeStyleSheet = function() {
     styleSheet.nest = makeNestedRuleBuilderCtor(styleSheet, _rules);
     styleSheet.n = styleSheet.nest;
 
-    styleSheet.renderCSS = function() {
+    styleSheet.renderCSS = function(signature) {
         let result = '';
         const print = function (value) {
             result = result.concat(value);
         }
 
-        print(`/* Generated with ${package.name} (${package.version}). */\n\n`);
+        if (signature !== null) {
+            if (signature === undefined) {
+                signature = `Generated with ${package.name} (${package.version}).` 
+            }
+            print(`/* ${signature} */\n\n`);
+        }
         _imports.forEach(importRule => {
             print(`@import url("${importRule.url}")`);
             if (importRule.mediaQueries.length !== 0)
