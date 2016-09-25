@@ -1,7 +1,10 @@
 {
   "name": "fluent-style-sheets",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Define your CSS in JavaScript with a fluent API.",
+  "keywords": [
+    "css", "js", "javascript", "style sheet", "edsl", "fluent"
+  ],
   "main": "index.js",
   "author": {
     "name": "Dudás Ádám",
