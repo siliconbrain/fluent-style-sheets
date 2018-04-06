@@ -1,7 +1,7 @@
 fluent-style-sheets
 ===================
 `fluent-style-sheets` is a library that lets you define your CSS using JavaScript.
-It supports two usage styles: it has a [fluent API](https://en.wikipedia.org/wiki/Fluent_interface) that resembles CSS 
+It supports two usage styles: it has a [fluent API](https://en.wikipedia.org/wiki/Fluent_interface) that resembles CSS
 as much as possible or you can use it more like an [EDSL](https://en.wikipedia.org/wiki/Embedded_domain-specific_language).
 
 Installation
@@ -130,17 +130,17 @@ myStyleSheet
 
 // CSS:
 // .container .content1 {
-//     color: green;   
+//     color: green;
 // }
-// 
+//
 // .container .inner-container .content2 {
 //     color: blue;
 // }
-// 
+//
 // .container .inner-container {
 //     color: yellow;
 // }
-// 
+//
 // .container .inner-container .content3 {
 //     color: cyan;
 // }

@@ -40,7 +40,7 @@ function makeNestedRuleBuilderCtor(base, rules) {
         }
 
         const builder = {};
-        
+
         builder.rule = function() {
             const rule = parseRule(...arguments);
 
@@ -60,7 +60,7 @@ function makeNestedRuleBuilderCtor(base, rules) {
             return makeNestedRuleBuilderCtor(builder, rules)(`${selector} ${innerSelector}`, innerAssembler);
         };
         builder.n = builder.nest;
-        
+
         assembler(builder);
 
         return base;
@@ -88,7 +88,7 @@ module.exports.makeStyleSheet = function() {
 
     styleSheet.import = function() {
         if (arguments.length < 1) throw new Error(ZeroArgumentsMessage);
-        
+
         const url = arguments[0];
 
         let mediaQueries = [...arguments].slice(1);
@@ -113,7 +113,7 @@ module.exports.makeStyleSheet = function() {
 
         if (signature !== null) {
             if (signature === undefined) {
-                signature = `Generated with ${package.name} (${package.version}).` 
+                signature = `Generated with ${package.name} (${package.version}).`
             }
             print(`/* ${signature} */\n\n`);
         }
