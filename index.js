@@ -61,6 +61,8 @@ function makeSubcontext(rules, selectorPrefixes) {
         } else {
             rules.push(rule);
         }
+
+        return subcontext;
     };
     subcontext.r = subcontext.rule;
     subcontext.spec = function() {
@@ -79,6 +81,8 @@ function makeSubcontext(rules, selectorPrefixes) {
         } else {
             rules.push(rule);
         }
+
+        return subcontext;
     };
     subcontext.s = subcontext.spec;
 

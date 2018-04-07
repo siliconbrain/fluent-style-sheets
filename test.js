@@ -33,6 +33,11 @@ describe('StyleSheet', function() {
             const css = getStyleSheet().import(url, ...mediaQueries).renderCSS();
             assert.equal(css, withDefaultSignature(`@import url("${url}") ${mediaQueries.join(", ")};\n\n`));
         })
+
+        it('should return the style sheet for method chaining', function() {
+            const styleSheet = getStyleSheet();
+            assert.strictEqual(styleSheet.import(url), styleSheet);
+        });
     });
 
     describe('renderCSS', function() {
@@ -76,6 +81,11 @@ describe('StyleSheet', function() {
             const css = getStyleSheet().rule(...selectors, {[property]: value}).renderCSS();
             assert.equal(css, withDefaultSignature(`\n${selectors.join(',\n')}\n{\n\t${property}: ${value};\n}\n\n`));
         });
+
+        it('should return the style sheet for method chaining', function() {
+            const styleSheet = getStyleSheet();
+            assert.strictEqual(styleSheet.rule('some-selector', {}), styleSheet);
+        });
     });
 });
 
@@ -109,6 +119,12 @@ describe('Subcontext', function() {
             const allSelectors = selectors.map(s1 => selectors2.map(s2 => `${s1} ${s2}`).join(',\n')).join(',\n');
             assert.equal(css, withDefaultSignature(`\n${allSelectors}\n{\n\t${property}: ${value};\n}\n\n`));
         });
+
+        it('should return its subcontext for method chaining', function() {
+            getStyleSheet().rule('some-selector',
+                (ctx) => assert.strictEqual(ctx.rule('some-other-selector', {}), ctx)
+            );
+        });
     });
 
     describe('spec', function() {
@@ -139,6 +155,12 @@ describe('Subcontext', function() {
             ).renderCSS();
             const allSelectors = selectors.map(s1 => selectors2.map(s2 => `${s1}${s2}`).join(',\n')).join(',\n');
             assert.equal(css, withDefaultSignature(`\n${allSelectors}\n{\n\t${property}: ${value};\n}\n\n`));
+        });
+
+        it('should return its subcontext for method chaining', function() {
+            getStyleSheet().rule('some-selector',
+                (ctx) => assert.strictEqual(ctx.spec('.some-other-selector', {}), ctx)
+            );
         });
     });
 })
