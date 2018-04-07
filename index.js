@@ -1,75 +1,93 @@
 const package = require('./package.json');
 
+function isFunction(value) { return typeof value === 'function'; }
+function isObject(value) { return typeof value === 'object'; }
+function isString(value) { return typeof value === 'string'; }
+
+function flatten(arrayOfArrays) { return Array.prototype.concat(...arrayOfArrays); }
+
+module.exports.defaultSignature = `Generated with ${package.name} (${package.version}).`;
+
 const ZeroArgumentsMessage = `No arguments provided.`;
 
 function parseRule() {
-    if (arguments.length < 1) throw new Error(ZeroArgumentsMessage);
-    if (arguments.length === 1) {
-        if (typeof arguments[0] === 'string') {
-            throw new Error("No declarations provided.");
-        }
+    const args = [...arguments];
+
+    if (args.length < 1) throw new Error(ZeroArgumentsMessage);
+
+    const selectors = args.slice(0, -1);
+    if (!selectors.every(isString)) throw new Error(`Selectors must be strings.`);
+
+    function makeDeclarations(obj) {
+        return Object.entries(obj).map(([property, value]) => ({property, value}));
     }
 
-    let selectors = [...arguments].slice(0, -1);
-
-    let declarations = arguments[arguments.length - 1];
-    if (Array.isArray(declarations)) {
-        declarations = Object.assign({}, ...declarations);
-    }
-    declarations = Object.keys(declarations).map(property => {
-        return ({
-            property,
-            value: declarations[property],
-        });
-    });
-
-    return {
-        selectors,
-        declarations,
-    };
+    const lastArg = arguments[arguments.length - 1];
+    if (Array.isArray(lastArg)) {
+        if (!lastArg.every(isObject)) throw new Error(`Declarations must be objects.`);
+        return {
+            selectors,
+            declarations: makeDeclarations(Object.assign({}, ...lastArg))
+        };
+    } else if (isObject(lastArg)) {
+        return {
+            selectors,
+            declarations: makeDeclarations(lastArg)
+        };
+    } else if (isFunction(lastArg)) {
+        return {
+            selectors,
+            assembler: lastArg,
+        };
+    } else throw new Error(`Last argument must be an array, object or function.`);
 }
 
-function makeNestedRuleBuilderCtor(base, rules) {
-    return function _makeNestedRuleBuilder(selector, assembler) {
-        if (selector === undefined || selector === '') {
-            throw new Error(`A selector must be provided for the nested rules.`);
+function makeSubcontext(rules, selectorPrefixes) {
+    const subcontext = {};
+
+    subcontext.rule = function() {
+        const rule = parseRule(...arguments);
+
+        if (rule.selectors.length === 0) {
+            rule.selectors = [''];
         }
 
-        if (assembler === undefined || typeof assembler !== 'function') {
-            throw new Error(`An assembler function must be provided for the nested rules.`);
-        }
+        rule.selectors = flatten(
+            selectorPrefixes.map(prefix => rule.selectors.map(selector => `${prefix} ${selector}`))
+        );
 
-        const builder = {};
-
-        builder.rule = function() {
-            const rule = parseRule(...arguments);
-
-            if (rule.selectors.length === 0) {
-                rule.selectors = [selector];
-            } else {
-                rule.selectors = rule.selectors.map((nestedSelector) => `${selector} ${nestedSelector}`);
-            }
-
+        if (rule.assembler) {
+            rule.assembler(makeSubcontext(rules, rule.selectors));
+        } else {
             rules.push(rule);
-
-            return builder;
-        };
-        builder.r = builder.rule;
-
-        builder.nest = function(innerSelector, innerAssembler) {
-            return makeNestedRuleBuilderCtor(builder, rules)(`${selector} ${innerSelector}`, innerAssembler);
-        };
-        builder.n = builder.nest;
-
-        assembler(builder);
-
-        return base;
+        }
     };
+    subcontext.r = subcontext.rule;
+    subcontext.spec = function() {
+        const rule = parseRule(...arguments);
+
+        if (rule.selectors.length === 0) {
+            rule.selectors = [''];
+        }
+
+        rule.selectors = flatten(
+            selectorPrefixes.map(prefix => rule.selectors.map(selector => `${prefix}${selector}`))
+        );
+
+        if (rule.assembler) {
+            rule.assembler(makeSubcontext(rules, rule.selectors));
+        } else {
+            rules.push(rule);
+        }
+    };
+    subcontext.s = subcontext.spec;
+
+    return subcontext;
 }
 
 module.exports.makeStyleSheet = function() {
-    let _imports = [];
-    let _rules = [];
+    const _imports = [];
+    const _rules = [];
 
     const styleSheet = {};
 
@@ -80,7 +98,11 @@ module.exports.makeStyleSheet = function() {
             rule.selectors = ['*'];
         }
 
-        _rules.push(rule);
+        if (rule.assembler) {
+            rule.assembler(makeSubcontext(_rules, rule.selectors));
+        } else {
+            _rules.push(rule);
+        }
 
         return styleSheet;
     };
@@ -102,9 +124,6 @@ module.exports.makeStyleSheet = function() {
     };
     styleSheet.i = styleSheet.import;
 
-    styleSheet.nest = makeNestedRuleBuilderCtor(styleSheet, _rules);
-    styleSheet.n = styleSheet.nest;
-
     styleSheet.renderCSS = function(signature) {
         let result = '';
         const print = function (value) {
@@ -113,7 +132,7 @@ module.exports.makeStyleSheet = function() {
 
         if (signature !== null) {
             if (signature === undefined) {
-                signature = `Generated with ${package.name} (${package.version}).`
+                signature = module.exports.defaultSignature;
             }
             print(`/* ${signature} */\n\n`);
         }

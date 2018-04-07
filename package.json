@@ -1,9 +1,14 @@
 {
   "name": "fluent-style-sheets",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "description": "Define your CSS in JavaScript with a fluent API.",
   "keywords": [
-    "css", "js", "javascript", "style sheet", "edsl", "fluent"
+    "css",
+    "js",
+    "javascript",
+    "style sheet",
+    "edsl",
+    "fluent"
   ],
   "main": "index.js",
   "author": {
@@ -16,6 +21,9 @@
   },
   "license": "MIT",
   "scripts": {
-    "test": "echo Sorry, there are not tests yet. Someone should really write some... :)"
+    "test": "mocha test.js"
+  },
+  "devDependencies": {
+    "mocha": "^5.0.5"
   }
 }

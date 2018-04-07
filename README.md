@@ -13,8 +13,8 @@ npm i fluent-style-sheets --save-dev
 Features
 --------
 * Define CSS rules ([`.rule`](#stylesheetrule) or [`.r`](#stylesheetr))
+  * with support for nested rules ([`.rule`](#subcontextrule) or [`.r`](#subcontextr), [`.spec`](#subcontextspec) or [`.s`](#subcontexts))
 * Define CSS imports ([`.import`](#stylesheetimport) or [`.i`](#stylesheeti))
-* Define nested rules ([`.nest`](#stylesheetnest) or [`.n`](#stylesheetn))
 
 Usage styles
 --------------
@@ -34,9 +34,12 @@ const styleSheet = makeStyleSheet()
         margin: 0,
     })
     // nested rules
-    .n('main', (b) => b
+    .r('main', (_) => _
         .r('> p', {
             'font-size': '14px',
+        })
+        .s(':hover', {
+            color: 'red',
         })
     );
 
@@ -50,7 +53,7 @@ const {makeStyleSheet} = require('fluent-style-sheets');
 const bodyBackgroundColor = '#ff00ff';
 
 const styleSheet = makeStyleSheet();
-const {i, n, r} = styleSheet;
+const {i, r} = styleSheet;
 
 // imports
 i('https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css');
@@ -62,10 +65,13 @@ r('body', {
 });
 
 // nested rules
-n('main', ({r, n}) => {
+r('main', ({r, s}) => {
     r('> p', {
         'font-size': '14px',
-    })
+    });
+    s(':hover', {
+        color: 'red',
+    });
 });
 
 console.log(styleSheet.renderCSS());
@@ -84,7 +90,7 @@ const myStyleSheet = makeStyleSheet();
 ```
 
 ### StyleSheet.i
-*Alias for [`import`](#stylesheetimport).*
+*Alias for [`StyleSheet.import`](#stylesheetimport).*
 
 ### StyleSheet.import
 *Create a new CSS @import.*
@@ -100,54 +106,8 @@ myStyleSheet
             'screen', 'tv and (orientation:landscape)');
 ```
 
-### StyleSheet.n
-*Alias for [`nest`](#stylesheetnest).*
-
-### StyleSheet.nest
-*Create nested ruleset.*
-
-**Type**: `function(selector: string, assembler: function({n, nest, r, rule})): StyleSheet`
-
-```js
-const myStyleSheet = makeStyleSheet();
-myStyleSheet
-    .nest('.container', (_) => _
-        .r('.content1', {
-            color: 'green',
-        })
-        .nest('.inner-container', (_) => _
-            .r('.content2', {
-                color: 'blue',
-            })
-            .r({  // "global" to nesting
-                color: 'yellow',
-            })
-            .r('.content3', {
-                color: 'cyan',
-            })
-        )
-    );
-
-// CSS:
-// .container .content1 {
-//     color: green;
-// }
-//
-// .container .inner-container .content2 {
-//     color: blue;
-// }
-//
-// .container .inner-container {
-//     color: yellow;
-// }
-//
-// .container .inner-container .content3 {
-//     color: cyan;
-// }
-```
-
 ### StyleSheet.r
-*Alias for [`rule`](#stylesheetrule).*
+*Alias for [`StyleSheet.rule`](#stylesheetrule).*
 
 ### StyleSheet.renderCSS
 *Render the style sheet to string with CSS syntax.*
@@ -166,7 +126,7 @@ const cssWithCustomSignature = myStyleSheet.renderCSS(`Please don't steal my sty
 ### StyleSheet.rule
 *Create a new CSS rule.*
 
-**Type**: `function(selectors: ...string, declarations: (object|object[])): StyleSheet`
+**Type**: `function(selectors: ...string, declarationsOrAssembler: (object | object[] | function(subcontext: Subcontext))): StyleSheet`
 
 ```js
 const myStyleSheet = makeStyleSheet();
@@ -187,4 +147,82 @@ myStyleSheet
     }, {
         'font-size': '14px',  // overrides previous value
     }]);
+```
+
+### Subcontext.r
+*Alias for [`Subcontext.rule`](#subcontextrule).*
+
+### Subcontext.rule
+*Create a new CSS rule embedded in the subcontext.*
+
+**Type**: `function(selectors: ...string, declarationsOrAssembler: (object | object[] | function(subcontext: Subcontext))): Subcontext`
+
+```js
+const myStyleSheet = makeStyleSheet();
+myStyleSheet
+    .r('.my-class', (_) => _
+        .rule('.my-class-2', {
+            color: '#ff00ff',
+            // ...
+        })
+        .rule('+ .siblings-to-my-class', '> .children-of-my-class', {
+            margin: '1px',
+            // ...
+        })
+        .rule('.my-class-3', (_) => _
+            .rule('.my-class-4', {
+                display: 'none',
+            })
+        )
+    );
+
+/* CSS:
+.my-class .my-class-2 {
+    color: #ff00ff;
+}
+
+.my-class + .siblings-to-my-class,
+.my-class > .children-of-my-class {
+    margin: 1px;
+}
+
+.my-class .my-class-3 .my-class-4 {
+    display: none;
+}
+*/
+```
+
+### Subcontext.s
+*Alias for [`Subcontext.spec`](#subcontextspec).*
+
+### Subcontext.spec
+*Create a rule specialization embedded in the subcontext.*
+
+**Type**: `function(selectors: ...string, declarationsOrAssembler: (object | object[] | function(subcontext: Subcontext))): Subcontext`
+
+```js
+const myStyleSheet = makeStyleSheet();
+myStyleSheet
+    .r('.my-class', (_) => _
+        .spec(':hover', '[data-foo="bar"]', {
+            color: '#ff00ff',
+            // ...
+        })
+        .spec('.my-other-class', (_) => _
+            .r('section', {
+                padding: '0px',
+            })
+        )
+    );
+
+/* CSS:
+.my-class:hover,
+.my-class[data-foo="bar"] {
+    color: #ff00ff;
+}
+
+.my-class.my-other-class section {
+    padding: 0px;
+}
+*/
 ```
